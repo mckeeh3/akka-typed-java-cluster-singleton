@@ -7,6 +7,7 @@ import akka.cluster.MemberStatus;
 import akka.cluster.typed.Cluster;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.model.*;
+import akka.http.javadsl.model.headers.RawHeader;
 import akka.http.javadsl.server.Route;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -58,7 +59,8 @@ class HttpServer {
 
   private Route clusterState() {
     return get(
-        () -> complete(StatusCodes.OK, loadNodes(actorSystem).toJson())
+        () -> respondWithHeader(RawHeader.create("Access-Control-Allow-Origin", "*"), () ->
+            complete(loadNodes(actorSystem).toJson()))
     );
   }
 
