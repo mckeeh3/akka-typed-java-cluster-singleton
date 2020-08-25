@@ -59,8 +59,8 @@ class HttpServer {
 
   private Route clusterState() {
     return get(
-        () -> respondWithHeader(RawHeader.create("Access-Control-Allow-Origin", "*"), () ->
-            complete(loadNodes(actorSystem).toJson()))
+        () -> respondWithHeader(RawHeader.create("Access-Control-Allow-Origin", "*"),
+            () -> complete(loadNodes(actorSystem).toJson()))
     );
   }
 
