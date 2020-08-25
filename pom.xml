@@ -124,7 +124,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.5.0</version>
                 <configuration>
-                    <mainClass>cluster.Runner</mainClass>
+                    <mainClass>cluster.Main</mainClass>
                 </configuration>
             </plugin>
 
@@ -157,7 +157,7 @@
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
-                                        <Main-Class>cluster.singleton.Main</Main-Class>
+                                        <Main-Class>cluster.Main</Main-Class>
                                     </manifestEntries>
                                 </transformer>
                             </transformers>

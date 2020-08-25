@@ -1,4 +1,4 @@
-package cluster.singleton;
+package cluster;
 
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.AbstractBehavior;
