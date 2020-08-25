@@ -44,13 +44,13 @@ class ClusterSingletonAwareActor extends AbstractBehavior<ClusterSingletonAwareA
 
   private Behavior<Message> onTick() {
     clusterSingletonProxy.tell(new Ping(getContext().getSelf(), System.nanoTime()));
-    httpServerActor.tell(new HttpServer.SingletonStatistics(singletonStatistics));
     return Behaviors.same();
   }
 
   private Behavior<Message> onPong(Pong pong) {
     log().info("<--{}", pong);
     singletonStatistics = pong.singletonStatistics;
+    httpServerActor.tell(new HttpServer.SingletonStatistics(singletonStatistics));
     return Behaviors.same();
   }
 
