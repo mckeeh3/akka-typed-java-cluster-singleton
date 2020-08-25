@@ -6,7 +6,7 @@ import akka.cluster.Member;
 import akka.cluster.MemberStatus;
 import akka.cluster.typed.Cluster;
 import akka.http.javadsl.Http;
-import akka.http.javadsl.model.*;
+import akka.http.javadsl.model.ContentTypes;
 import akka.http.javadsl.model.headers.RawHeader;
 import akka.http.javadsl.server.Route;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,11 +25,12 @@ import static akka.http.javadsl.server.Directives.*;
 
 class HttpServer {
   private final ActorSystem<?> actorSystem;
+  private PingStatistics pingStatistics;
 
-  static void start(ActorSystem<?> actorSystem) {
+  static HttpServer start(ActorSystem<?> actorSystem) {
     final int port = memberPort(Cluster.get(actorSystem).selfMember());
     if (port >= 2551 && port <= 2559) {
-      new HttpServer(port + 7000, actorSystem);
+      return new HttpServer(port + 7000, actorSystem);
     } else {
       final String message = String.format("HTTP server not started. Node port %d is invalid. The port must be >= 2551 and <= 2559.", port);
       System.err.printf("%s%n", message);
@@ -52,6 +53,7 @@ class HttpServer {
         path("", () -> getFromResource("dashboard.html", ContentTypes.TEXT_HTML_UTF8)),
         path("dashboard.html", () -> getFromResource("dashboard.html", ContentTypes.TEXT_HTML_UTF8)),
         path("dashboard.js", () -> getFromResource("dashboard.js", ContentTypes.APPLICATION_JSON)),
+        path("dashboard-cluster-aware.js", () -> getFromResource("dashboard-cluster-aware.js", ContentTypes.APPLICATION_JSON)),
         path("p5.js", () -> getFromResource("p5.js", ContentTypes.APPLICATION_JSON)),
         path("cluster-state", this::clusterState)
     );
@@ -60,11 +62,11 @@ class HttpServer {
   private Route clusterState() {
     return get(
         () -> respondWithHeader(RawHeader.create("Access-Control-Allow-Origin", "*"),
-            () -> complete(loadNodes(actorSystem).toJson()))
+            () -> complete(loadNodes(actorSystem, pingStatistics).toJson()))
     );
   }
 
-  private static Nodes loadNodes(ActorSystem<?> actorSystem) {
+  private static Nodes loadNodes(ActorSystem<?> actorSystem, PingStatistics pingStatistics) {
     final Cluster cluster = Cluster.get(actorSystem);
     final ClusterEvent.CurrentClusterState clusterState = cluster.state();
 
@@ -82,7 +84,8 @@ class HttpServer {
     final Nodes nodes = new Nodes(
         memberPort(cluster.selfMember()),
         cluster.selfMember().address().equals(clusterState.getLeader()),
-        oldest.equals(cluster.selfMember()));
+        oldest.equals(cluster.selfMember()),
+        pingStatistics);
 
     StreamSupport.stream(clusterState.getMembers().spliterator(), false)
         .forEach(new Consumer<Member>() {
@@ -134,16 +137,32 @@ class HttpServer {
         }).collect(Collectors.toList());
   }
 
+  void load(PingStatistics pingStatistics) {
+    this.pingStatistics = pingStatistics;
+  }
+
+  public static class PingStatistics implements Serializable {
+    public final int totalPings;
+    public final Map<Integer, Integer> nodePings;
+
+    public PingStatistics(int totalPings, Map<Integer, Integer> nodePings) {
+      this.totalPings = totalPings;
+      this.nodePings = nodePings;
+    }
+  }
+
   public static class Nodes implements Serializable {
     public final int selfPort;
     public final boolean leader;
     public final boolean oldest;
+    public final PingStatistics pingStatistics;
     public List<Node> nodes = new ArrayList<>();
 
-    public Nodes(int selfPort, boolean leader, boolean oldest) {
+    public Nodes(int selfPort, boolean leader, boolean oldest, PingStatistics pingStatistics) {
       this.selfPort = selfPort;
       this.leader = leader;
       this.oldest = oldest;
+      this.pingStatistics = pingStatistics;
     }
 
     void add(Member member, boolean leader, boolean oldest, boolean seedNode) {

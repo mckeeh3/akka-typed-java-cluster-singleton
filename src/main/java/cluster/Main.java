@@ -1,5 +1,6 @@
 package cluster;
 
+import akka.actor.typed.ActorRef;
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.Terminated;
@@ -22,6 +23,10 @@ class Main {
 
   private static void bootstrap(final ActorContext<Void> context) {
     context.spawn(ClusterListenerActor.create(), "clusterListener");
+
+    final ActorRef<HttpServer.PingStatistics> httpServerActorRef = context.spawn(HttpServerActor.create(), HttpServerActor.class.getSimpleName());
+
+    context.spawn(ClusterAwareActor.create(httpServerActorRef), ClusterAwareActor.class.getSimpleName());
   }
 
   public static void main(String[] args) {

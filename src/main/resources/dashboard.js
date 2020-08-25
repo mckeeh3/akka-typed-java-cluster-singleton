@@ -55,6 +55,7 @@ function drawNineNodes() {
     strokeWeight(2.5);
     stroke(255, 100);
     grid.line(19, 0, 19 + 3 * 18 + 2, 0);
+
     Label().setX(19).setY(0).setW(19 * 2 + 18).setH(1)
             .setBorder(0.1)
             .setKey("Cluster Nodes")
@@ -87,14 +88,14 @@ function windowResized() {
     grid.resize();
 }
 
-function aspectratio(width, height) {
+function aspectRatio(width, height) {
     return height / width;
 }
 
 const grid = {
     borderWidth: 20,
     ticksHorizontal: 76,
-    ticksVertical: aspectratio(16, 9) * 76, // ticksHorizontal
+    ticksVertical: aspectRatio(16, 9) * 76, // ticksHorizontal
     tickWidth: 0,
     resize: function () {
         gridWidth = windowWidth - 2 * this.borderWidth;
@@ -173,6 +174,8 @@ function nodeDetails(x, y, w, h, nodeNo) {
                 .setKeyColor(color(255, 191, 0))
                 .setValueColor(color(255))
                 .draw();
+
+        clusterAware.nodeDetails(x, y, w, h, nodeNo);
     }
 
     if (node.seedNode) {
@@ -266,7 +269,7 @@ function nodeColor(state) {
     return color(nodeColors[state]);
 }
 
-let Label = function () {
+let = Label = function () {
     return {
         setX: function(x) { this.x = x; return this; },
         setY: function(y) { this.y = y; return this; },
@@ -401,6 +404,8 @@ function clusterStateUpdateNode(clusterStateFromNode) {
         node.time = (new Date()).getTime();
         clusterState.members[selfPort - 2551].nodes[port - 2551] = node;
     }
+
+    clusterAware.clusterStateUpdateNode(clusterStateFromNode);
 
     clusterStateUpdateSummary(clusterStateFromNode);
 }
