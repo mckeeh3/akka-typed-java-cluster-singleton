@@ -18,7 +18,7 @@ import java.util.Optional;
 class ClusterSingletonAwareActor extends AbstractBehavior<ClusterSingletonAwareActor.Message> {
   private final ActorRef<Message> clusterSingletonProxy;
   private final ActorRef<HttpServer.Statistics> httpServerActor;
-  private static final Duration tickInterval = Duration.ofMillis(500);
+  private static final Duration tickInterval = Duration.ofMillis(100 + Math.round(900 * Math.random()));
   private final int port;
 
   static Behavior<Message> create(ActorRef<HttpServer.Statistics> httpServerActor) {
