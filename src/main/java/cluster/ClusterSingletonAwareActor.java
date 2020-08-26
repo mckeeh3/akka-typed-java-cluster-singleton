@@ -87,7 +87,7 @@ class ClusterSingletonAwareActor extends AbstractBehavior<ClusterSingletonAwareA
 
     @Override
     public String toString() {
-      return String.format("%s[%s, %,dns]", getClass().getSimpleName(), replyFrom.path(), System.nanoTime() - pingStart);
+      return String.format("%s[%s, %,dns, %s]", getClass().getSimpleName(), replyFrom.path(), System.nanoTime() - pingStart, singletonStatistics);
     }
   }
 
