@@ -35,7 +35,7 @@ class ClusterSingletonActor extends AbstractBehavior<Message> {
   }
 
   private Behavior<Message> onPing(ClusterSingletonAwareActor.Ping ping) {
-    log().info("<=={}", ping);
+    log().info("<=={} {}", ping.replyTo.path().address().port(), ping);
     singletonStatistics.ping(ping.replyTo);
     ping.replyTo.tell(new ClusterSingletonAwareActor.Pong(getContext().getSelf(), ping.start, Collections.unmodifiableMap(singletonStatistics.nodePings)));
     return Behaviors.same();
