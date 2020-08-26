@@ -3,6 +3,7 @@ package cluster;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
+import akka.cluster.Cluster;
 import akka.cluster.typed.ClusterSingleton;
 import akka.cluster.typed.SingletonActor;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -41,6 +42,7 @@ class ClusterSingletonAwareActor extends AbstractBehavior<ClusterSingletonAwareA
   }
 
   private Behavior<Message> onTick() {
+    log().info("Actor port {}", Cluster.get(getContext().getSystem()).selfAddress().getPort());
     clusterSingletonProxy.tell(new Ping(getContext().getSelf(), System.nanoTime()));
     return Behaviors.same();
   }
