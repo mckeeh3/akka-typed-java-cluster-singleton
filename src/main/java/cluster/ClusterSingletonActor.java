@@ -1,13 +1,11 @@
 package cluster;
 
-import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 import org.slf4j.Logger;
-import scala.Option;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,8 +33,8 @@ class ClusterSingletonActor extends AbstractBehavior<Message> {
   }
 
   private Behavior<Message> onPing(ClusterSingletonAwareActor.Ping ping) {
-    log().info("<=={} {}", ping.replyTo.path().address().port(), ping);
-    singletonStatistics.ping(ping.replyTo);
+    log().info("<=={}", ping);
+    singletonStatistics.ping(ping);
     ping.replyTo.tell(new ClusterSingletonAwareActor.Pong(getContext().getSelf(), ping.start, Collections.unmodifiableMap(singletonStatistics.nodePings)));
     return Behaviors.same();
   }
@@ -48,18 +46,10 @@ class ClusterSingletonActor extends AbstractBehavior<Message> {
       IntStream.rangeClosed(2551, 2559).forEach(p -> nodePings.put(p, 0));
     }
 
-    void ping(ActorRef<Message> actorRef) {
-      final int port = actorRefPort(actorRef);
-      if (port >= 2551 && port <= 2559) {
-        nodePings.put(port, 1 + nodePings.getOrDefault(port, 0));
+    void ping(ClusterSingletonAwareActor.Ping ping) {
+      if (ping.port >= 2551 && ping.port <= 2559) {
+        nodePings.put(ping.port, 1 + nodePings.getOrDefault(ping.port, 0));
       }
-    }
-
-    private static int actorRefPort(ActorRef<Message> actorRef) {
-      final Option<Object> port = actorRef.path().address().port();
-      return port.isDefined()
-          ? Integer.parseInt(port.get().toString())
-          : -1;
     }
   }
 

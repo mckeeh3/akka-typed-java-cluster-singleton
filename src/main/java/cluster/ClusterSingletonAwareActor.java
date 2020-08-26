@@ -12,12 +12,14 @@ import org.slf4j.Logger;
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.Map;
+import java.util.Optional;
 
 
 class ClusterSingletonAwareActor extends AbstractBehavior<ClusterSingletonAwareActor.Message> {
   private final ActorRef<Message> clusterSingletonProxy;
   private final ActorRef<HttpServer.Statistics> httpServerActor;
   private static final Duration tickInterval = Duration.ofMillis(500);
+  private final int port;
 
   static Behavior<Message> create(ActorRef<HttpServer.Statistics> httpServerActor) {
     return Behaviors.setup(actorContext ->
@@ -27,6 +29,8 @@ class ClusterSingletonAwareActor extends AbstractBehavior<ClusterSingletonAwareA
   ClusterSingletonAwareActor(ActorContext<Message> actorContext, TimerScheduler<Message> timers, ActorRef<HttpServer.Statistics> httpServerActor) {
     super(actorContext);
     this.httpServerActor = httpServerActor;
+    final Optional<Integer> port = Cluster.get(actorContext.getSystem()).selfAddress().getPort();
+    this.port = port.orElse(-1);
 
     clusterSingletonProxy = ClusterSingleton.get(actorContext.getSystem())
         .init(SingletonActor.of(ClusterSingletonActor.create(), ClusterSingletonActor.class.getSimpleName()));
@@ -42,8 +46,7 @@ class ClusterSingletonAwareActor extends AbstractBehavior<ClusterSingletonAwareA
   }
 
   private Behavior<Message> onTick() {
-    log().info("Actor port {}", Cluster.get(getContext().getSystem()).selfAddress().getPort());
-    clusterSingletonProxy.tell(new Ping(getContext().getSelf(), System.nanoTime()));
+    clusterSingletonProxy.tell(new Ping(getContext().getSelf(), port, System.nanoTime()));
     return Behaviors.same();
   }
 
@@ -58,17 +61,19 @@ class ClusterSingletonAwareActor extends AbstractBehavior<ClusterSingletonAwareA
 
   public static class Ping implements Message, Serializable {
     public final ActorRef<Message> replyTo;
+    public final int port;
     public final long start;
 
     @JsonCreator
-    public Ping(ActorRef<Message> replyTo, long start) {
+    public Ping(ActorRef<Message> replyTo, int port, long start) {
       this.replyTo = replyTo;
+      this.port = port;
       this.start = start;
     }
 
     @Override
     public String toString() {
-      return String.format("%s[%s]", getClass().getSimpleName(), replyTo.path());
+      return String.format("%s[%d, %s]", getClass().getSimpleName(), port, replyTo.path());
     }
   }
 
