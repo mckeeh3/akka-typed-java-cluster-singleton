@@ -20,7 +20,7 @@ class ClusterSingletonActor extends AbstractBehavior<Message> {
   private final SingletonStatistics singletonStatistics = new SingletonStatistics();
 
   static Behavior<Message> create() {
-    return null;
+    return Behaviors.setup(ClusterSingletonActor::new);
   }
 
   ClusterSingletonActor(ActorContext<Message> actorContext) {
