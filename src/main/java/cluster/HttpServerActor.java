@@ -21,20 +21,20 @@ class HttpServerActor {
 
   private Behavior<HttpServer.Statistics> behavior() {
     return Behaviors.receive(HttpServer.Statistics.class)
-        .onMessage(HttpServer.ClusterAwareStatistics.class, this::onPingStatistics)
-        .onMessage(HttpServer.SingletonStatistics.class, this::omSingletonStatistics)
+        .onMessage(HttpServer.ClusterAwareStatistics.class, this::onClusterAwareStatistics)
+        .onMessage(HttpServer.SingletonAwareStatistics.class, this::omSingletonAwareStatistics)
         .build();
   }
 
-  private Behavior<HttpServer.Statistics> onPingStatistics(HttpServer.ClusterAwareStatistics clusterAwareStatistics) {
+  private Behavior<HttpServer.Statistics> onClusterAwareStatistics(HttpServer.ClusterAwareStatistics clusterAwareStatistics) {
     log().info("Cluster aware statistics {} {}", clusterAwareStatistics.totalPings, clusterAwareStatistics.nodePings);
     httpServer.load(clusterAwareStatistics);
     return Behaviors.same();
   }
 
-  private Behavior<HttpServer.Statistics> omSingletonStatistics(HttpServer.SingletonStatistics singletonStatistics) {
-    log().info("Singleton statistics {}", singletonStatistics.nodePings);
-    httpServer.load(singletonStatistics);
+  private Behavior<HttpServer.Statistics> omSingletonAwareStatistics(HttpServer.SingletonAwareStatistics singletonAwareStatistics) {
+    log().info("Singleton aware statistics {}", singletonAwareStatistics.nodePings);
+    httpServer.load(singletonAwareStatistics);
     return Behaviors.same();
   }
 

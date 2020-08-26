@@ -52,7 +52,8 @@ class ClusterSingletonAwareActor extends AbstractBehavior<ClusterSingletonAwareA
 
   private Behavior<Message> onPong(Pong pong) {
     log().info("<--{}", pong);
-    httpServerActor.tell(new HttpServer.SingletonStatistics(pong.singletonStatistics));
+    final int totalPings = pong.singletonStatistics.values().stream().reduce(0, Integer::sum);
+    httpServerActor.tell(new HttpServer.SingletonAwareStatistics(totalPings, pong.singletonStatistics));
     return Behaviors.same();
   }
 

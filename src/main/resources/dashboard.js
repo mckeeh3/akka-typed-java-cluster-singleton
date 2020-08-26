@@ -48,6 +48,7 @@ function drawSummary() {
             .setValueColor(color(255))
             .draw();
 
+    singletonAware.singletonDetails(1, 5, 16, 15);
     nineNodes(0, 24, 18, 0.05, clusterState.summary.nodes);
 }
 
@@ -406,6 +407,7 @@ function clusterStateUpdateNode(clusterStateFromNode) {
     }
 
     clusterAware.clusterStateUpdateNode(clusterStateFromNode);
+    singletonAware.clusterStateUpdateNode(clusterStateFromNode);
 
     clusterStateUpdateSummary(clusterStateFromNode);
 }

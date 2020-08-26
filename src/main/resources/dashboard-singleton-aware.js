@@ -1,38 +1,40 @@
 
-const clusterAware = {
+const singletonAware = {
 
   clusterStateUpdateNode: function (clusterStateFromNode) {
     const selfPort = clusterStateFromNode.selfPort;
 
-    clusterState.members[selfPort - 2551].clusterAwareStatistics = clusterStateFromNode.clusterAwareStatistics;
+    clusterState.members[selfPort - 2551].singletonAwareStatistics = clusterStateFromNode.singletonAwareStatistics;
+    if (selfPort == clusterState.summary.oldest) {
+        clusterState.singletonAwareStatistics = clusterStateFromNode.singletonAwareStatistics;
+    }
   },
 
-  nodeDetails: function (x, y, w, h, nodeNo) {
-      const selfPort = 2551 + nodeNo;
-      const clusterAwareStatistics = clusterState.members[nodeNo].clusterAwareStatistics;
+  singletonDetails: function (x, y, w, h) {
+      const singletonAwareStatistics = clusterState.singletonAwareStatistics;
 
-      if (clusterAwareStatistics) {
-          Label().setX(x).setY(y + 2).setW(9).setH(1)
+      if (singletonAwareStatistics) {
+          Label().setX(x).setY(y + 5).setW(w).setH(1)
                   .setBorder(0.25)
-                  .setKey("Cluster Aware")
+                  .setKey("Singleton Aware")
                   .setBgColor(color(100, 75))
                   .setKeyColor(color(255, 191, 0))
                   .draw();
 
-          Label().setX(x).setY(y + 3).setW(9).setH(1)
+          Label().setX(x).setY(y + 6).setW(w).setH(1)
                   .setBorder(0.25)
                   .setKey("Total pings")
-                  .setValue(clusterAwareStatistics.totalPings.toLocaleString())
+                  .setValue(singletonAwareStatistics.totalPings.toLocaleString())
                   .setKeyColor(color(29, 249, 246))
                   .setValueColor(color(255))
                   .draw();
 
-          var lineY = y + 4;
+          var lineY = y + 7;
           for (var p = 0; p < 9; p++) {
               const port = 2551 + p;
-              const nodePings = clusterAwareStatistics.nodePings[port];
-              if (nodePings && port != selfPort) {
-                  Label().setX(x).setY(lineY++).setW(9).setH(1)
+              const nodePings = singletonAwareStatistics.nodePings[port];
+              if (nodePings) {
+                  Label().setX(x).setY(lineY++).setW(w).setH(1)
                           .setBorder(0.25)
                           .setKey("" + port)
                           .setValue(nodePings.toLocaleString())
@@ -41,7 +43,7 @@ const clusterAware = {
                           .draw();
 
                   const progress = nodePings % 10;
-                  const length = 9 / 10 * (progress == 0 ? 10 : progress);
+                  const length = w / 10 * (progress == 0 ? 10 : progress);
 
                   strokeWeight(0);
                   fill(color(29, 249, 246, 30));

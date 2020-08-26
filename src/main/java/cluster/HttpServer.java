@@ -26,7 +26,7 @@ import static akka.http.javadsl.server.Directives.*;
 class HttpServer {
   private final ActorSystem<?> actorSystem;
   private ClusterAwareStatistics clusterAwareStatistics;
-  private SingletonStatistics singletonStatistics;
+  private SingletonAwareStatistics singletonAwareStatistics;
 
   static HttpServer start(ActorSystem<?> actorSystem) {
     final int port = memberPort(Cluster.get(actorSystem).selfMember());
@@ -55,6 +55,7 @@ class HttpServer {
         path("dashboard.html", () -> getFromResource("dashboard.html", ContentTypes.TEXT_HTML_UTF8)),
         path("dashboard.js", () -> getFromResource("dashboard.js", ContentTypes.APPLICATION_JSON)),
         path("dashboard-cluster-aware.js", () -> getFromResource("dashboard-cluster-aware.js", ContentTypes.APPLICATION_JSON)),
+        path("dashboard-singleton-aware.js", () -> getFromResource("dashboard-singleton-aware.js", ContentTypes.APPLICATION_JSON)),
         path("p5.js", () -> getFromResource("p5.js", ContentTypes.APPLICATION_JSON)),
         path("cluster-state", this::clusterState)
     );
@@ -63,11 +64,11 @@ class HttpServer {
   private Route clusterState() {
     return get(
         () -> respondWithHeader(RawHeader.create("Access-Control-Allow-Origin", "*"),
-            () -> complete(loadNodes(actorSystem, clusterAwareStatistics, singletonStatistics).toJson()))
+            () -> complete(loadNodes(actorSystem, clusterAwareStatistics, singletonAwareStatistics).toJson()))
     );
   }
 
-  private static Nodes loadNodes(ActorSystem<?> actorSystem, ClusterAwareStatistics clusterAwareStatistics, SingletonStatistics singletonStatistics) {
+  private static Nodes loadNodes(ActorSystem<?> actorSystem, ClusterAwareStatistics clusterAwareStatistics, SingletonAwareStatistics singletonAwareStatistics) {
     final Cluster cluster = Cluster.get(actorSystem);
     final ClusterEvent.CurrentClusterState clusterState = cluster.state();
 
@@ -86,7 +87,7 @@ class HttpServer {
         memberPort(cluster.selfMember()),
         cluster.selfMember().address().equals(clusterState.getLeader()),
         oldest.equals(cluster.selfMember()),
-        clusterAwareStatistics, singletonStatistics);
+        clusterAwareStatistics, singletonAwareStatistics);
 
     StreamSupport.stream(clusterState.getMembers().spliterator(), false)
         .forEach(new Consumer<Member>() {
@@ -155,14 +156,16 @@ class HttpServer {
     }
   }
 
-  void load(SingletonStatistics singletonStatistics) {
-    this.singletonStatistics = singletonStatistics;
+  void load(SingletonAwareStatistics singletonAwareStatistics) {
+    this.singletonAwareStatistics = singletonAwareStatistics;
   }
 
-  public static class SingletonStatistics implements Statistics, Serializable {
+  public static class SingletonAwareStatistics implements Statistics, Serializable {
+    public final int totalPings;
     public final Map<Integer, Integer> nodePings;
 
-    public SingletonStatistics(Map<Integer, Integer> nodePings) {
+    public SingletonAwareStatistics(int totalPings, Map<Integer, Integer> nodePings) {
+      this.totalPings = totalPings;
       this.nodePings = nodePings;
     }
   }
@@ -172,15 +175,15 @@ class HttpServer {
     public final boolean leader;
     public final boolean oldest;
     public final ClusterAwareStatistics clusterAwareStatistics;
-    public final SingletonStatistics singletonStatistics;
+    public final SingletonAwareStatistics singletonAwareStatistics;
     public List<Node> nodes = new ArrayList<>();
 
-    public Nodes(int selfPort, boolean leader, boolean oldest, ClusterAwareStatistics clusterAwareStatistics, SingletonStatistics singletonStatistics) {
+    public Nodes(int selfPort, boolean leader, boolean oldest, ClusterAwareStatistics clusterAwareStatistics, SingletonAwareStatistics singletonAwareStatistics) {
       this.selfPort = selfPort;
       this.leader = leader;
       this.oldest = oldest;
       this.clusterAwareStatistics = clusterAwareStatistics;
-      this.singletonStatistics = singletonStatistics;
+      this.singletonAwareStatistics = singletonAwareStatistics;
     }
 
     void add(Member member, boolean leader, boolean oldest, boolean seedNode) {
