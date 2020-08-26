@@ -10,14 +10,12 @@ import org.slf4j.Logger;
 
 import java.io.Serializable;
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.Map;
 
 
 class ClusterSingletonAwareActor extends AbstractBehavior<ClusterSingletonAwareActor.Message> {
   private final ActorRef<Message> clusterSingletonProxy;
   private final ActorRef<HttpServer.Statistics> httpServerActor;
-  private Map<Integer, Integer> singletonStatistics = new HashMap<>();
   private static final Duration tickInterval = Duration.ofMillis(500);
 
   static Behavior<Message> create(ActorRef<HttpServer.Statistics> httpServerActor) {
@@ -49,8 +47,7 @@ class ClusterSingletonAwareActor extends AbstractBehavior<ClusterSingletonAwareA
 
   private Behavior<Message> onPong(Pong pong) {
     log().info("<--{}", pong);
-    singletonStatistics = pong.singletonStatistics;
-    httpServerActor.tell(new HttpServer.SingletonStatistics(singletonStatistics));
+    httpServerActor.tell(new HttpServer.SingletonStatistics(pong.singletonStatistics));
     return Behaviors.same();
   }
 
