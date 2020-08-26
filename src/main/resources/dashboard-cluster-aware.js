@@ -4,14 +4,14 @@ const clusterAware = {
   clusterStateUpdateNode: function (clusterStateFromNode) {
     const selfPort = clusterStateFromNode.selfPort;
 
-    clusterState.members[selfPort - 2551].pingStatistics = clusterStateFromNode.pingStatistics;
+    clusterState.members[selfPort - 2551].clusterAwareStatistics = clusterStateFromNode.clusterAwareStatistics;
   },
 
   nodeDetails: function (x, y, w, h, nodeNo) {
       const selfPort = 2551 + nodeNo;
-      const pingStatistics = clusterState.members[nodeNo].pingStatistics;
+      const clusterAwareStatistics = clusterState.members[nodeNo].clusterAwareStatistics;
 
-      if (pingStatistics) {
+      if (clusterAwareStatistics) {
           Label().setX(x).setY(y + 2).setW(9).setH(1)
                   .setBorder(0.25)
                   .setKey("Cluster Aware")
@@ -22,7 +22,7 @@ const clusterAware = {
           Label().setX(x).setY(y + 3).setW(9).setH(1)
                   .setBorder(0.25)
                   .setKey("Total pings")
-                  .setValue(pingStatistics.totalPings)
+                  .setValue(clusterAwareStatistics.totalPings)
                   .setKeyColor(color(29, 249, 246))
                   .setValueColor(color(255))
                   .draw();
@@ -30,16 +30,16 @@ const clusterAware = {
           var lineY = y + 4;
           for (var p = 0; p < 9; p++) {
               const port = 2551 + p;
-              if (pingStatistics.nodePings[port] && port != selfPort) {
+              if (clusterAwareStatistics.nodePings[port] && port != selfPort) {
                   Label().setX(x).setY(lineY++).setW(9).setH(1)
                           .setBorder(0.25)
                           .setKey("" + port)
-                          .setValue(pingStatistics.nodePings[port])
+                          .setValue(clusterAwareStatistics.nodePings[port])
                           .setKeyColor(color(29, 249, 246))
                           .setValueColor(color(255))
                           .draw();
 
-                  const progress = pingStatistics.nodePings[port] % 10;
+                  const progress = clusterAwareStatistics.nodePings[port] % 10;
                   const length = 9 / 10 * (progress == 0 ? 10 : progress);
 
                   strokeWeight(0);
