@@ -63,11 +63,11 @@ class HttpServer {
   private Route clusterState() {
     return get(
         () -> respondWithHeader(RawHeader.create("Access-Control-Allow-Origin", "*"),
-            () -> complete(loadNodes(actorSystem, clusterAwareStatistics).toJson()))
+            () -> complete(loadNodes(actorSystem, clusterAwareStatistics, singletonStatistics).toJson()))
     );
   }
 
-  private static Nodes loadNodes(ActorSystem<?> actorSystem, ClusterAwareStatistics clusterAwareStatistics) {
+  private static Nodes loadNodes(ActorSystem<?> actorSystem, ClusterAwareStatistics clusterAwareStatistics, SingletonStatistics singletonStatistics) {
     final Cluster cluster = Cluster.get(actorSystem);
     final ClusterEvent.CurrentClusterState clusterState = cluster.state();
 
@@ -86,7 +86,7 @@ class HttpServer {
         memberPort(cluster.selfMember()),
         cluster.selfMember().address().equals(clusterState.getLeader()),
         oldest.equals(cluster.selfMember()),
-        clusterAwareStatistics);
+        clusterAwareStatistics, singletonStatistics);
 
     StreamSupport.stream(clusterState.getMembers().spliterator(), false)
         .forEach(new Consumer<Member>() {
@@ -172,13 +172,15 @@ class HttpServer {
     public final boolean leader;
     public final boolean oldest;
     public final ClusterAwareStatistics clusterAwareStatistics;
+    public final SingletonStatistics singletonStatistics;
     public List<Node> nodes = new ArrayList<>();
 
-    public Nodes(int selfPort, boolean leader, boolean oldest, ClusterAwareStatistics clusterAwareStatistics) {
+    public Nodes(int selfPort, boolean leader, boolean oldest, ClusterAwareStatistics clusterAwareStatistics, SingletonStatistics singletonStatistics) {
       this.selfPort = selfPort;
       this.leader = leader;
       this.oldest = oldest;
       this.clusterAwareStatistics = clusterAwareStatistics;
+      this.singletonStatistics = singletonStatistics;
     }
 
     void add(Member member, boolean leader, boolean oldest, boolean seedNode) {
