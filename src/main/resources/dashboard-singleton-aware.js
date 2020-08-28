@@ -12,8 +12,11 @@ const singletonAware = {
 
   singletonDetails: function (x, y, w, h) {
       const singletonAwareStatistics = clusterState.singletonAwareStatistics;
+      const oldestIsUp = clusterState.summary.oldest >= 2551
+                          ? clusterState.summary.nodes[clusterState.summary.oldest - 2551].state == "up"
+                          : false;
 
-      if (singletonAwareStatistics) {
+      if (oldestIsUp && singletonAwareStatistics) {
           Label().setX(x).setY(y + 5).setW(w).setH(1)
                   .setBorder(0.25)
                   .setKey("Singleton Aware")
@@ -42,8 +45,8 @@ const singletonAware = {
                           .setValueColor(color(255))
                           .draw();
 
-                  const progress = nodePings % 10;
-                  const length = w / 10 * (progress == 0 ? 10 : progress);
+                  const progress = nodePings % 100;
+                  const length = w / 100 * (progress == 0 ? 1 : progress);
 
                   strokeWeight(0);
                   fill(color(29, 249, 246, 30));

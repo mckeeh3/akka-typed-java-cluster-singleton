@@ -16,6 +16,7 @@ import static cluster.ClusterSingletonAwareActor.Message;
 
 class ClusterSingletonActor extends AbstractBehavior<Message> {
   private final SingletonStatistics singletonStatistics = new SingletonStatistics();
+  private int pingCount = 0;
 
   static Behavior<Message> create() {
     return Behaviors.setup(ClusterSingletonActor::new);
@@ -33,7 +34,9 @@ class ClusterSingletonActor extends AbstractBehavior<Message> {
   }
 
   private Behavior<Message> onPing(ClusterSingletonAwareActor.Ping ping) {
-    log().info("<=={}", ping);
+    if (++pingCount % 100 == 0) {
+      log().info("<=={}", ping);
+    }
     singletonStatistics.ping(ping);
     ping.replyTo.tell(new ClusterSingletonAwareActor.Pong(getContext().getSelf(), ping.start, Collections.unmodifiableMap(singletonStatistics.nodePings)));
     return Behaviors.same();

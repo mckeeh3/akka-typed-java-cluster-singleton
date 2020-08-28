@@ -18,7 +18,7 @@ import java.util.Optional;
 class ClusterSingletonAwareActor extends AbstractBehavior<ClusterSingletonAwareActor.Message> {
   private final ActorRef<Message> clusterSingletonProxy;
   private final ActorRef<HttpServer.Statistics> httpServerActor;
-  private static final Duration tickInterval = Duration.ofMillis(100 + Math.round(900 * Math.random()));
+  private static final Duration tickInterval = Duration.ofMillis(25 + Math.round(50 * Math.random())); // avg 50ms per tick
   private final int port;
 
   static Behavior<Message> create(ActorRef<HttpServer.Statistics> httpServerActor) {
@@ -51,8 +51,10 @@ class ClusterSingletonAwareActor extends AbstractBehavior<ClusterSingletonAwareA
   }
 
   private Behavior<Message> onPong(Pong pong) {
-    log().info("<--{}", pong);
     final int totalPings = pong.singletonStatistics.values().stream().reduce(0, Integer::sum);
+    if (totalPings % 100 == 0) {
+      log().info("<--{}", pong);
+    }
     httpServerActor.tell(new HttpServer.SingletonAwareStatistics(totalPings, pong.singletonStatistics));
     return Behaviors.same();
   }
