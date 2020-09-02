@@ -20,8 +20,10 @@ const singletonAware = {
           Label().setX(x).setY(y + 5).setW(w).setH(1)
                   .setBorder(0.25)
                   .setKey("Singleton Aware")
+                  .setValue(singletonAwareStatistics.pingRatePs + "/s")
                   .setBgColor(color(100, 75))
                   .setKeyColor(color(255, 191, 0))
+                  .setValueColor(color(255))
                   .draw();
 
           Label().setX(x).setY(y + 6).setW(w).setH(1)

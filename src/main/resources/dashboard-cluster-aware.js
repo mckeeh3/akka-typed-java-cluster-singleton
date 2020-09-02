@@ -15,8 +15,10 @@ const clusterAware = {
           Label().setX(x).setY(y + 2).setW(9).setH(1)
                   .setBorder(0.25)
                   .setKey("Cluster Aware")
+                  .setValue(clusterAwareStatistics.pingRatePs + "/s")
                   .setBgColor(color(100, 75))
                   .setKeyColor(color(255, 191, 0))
+                  .setValueColor(color(255))
                   .draw();
 
           Label().setX(x).setY(y + 3).setW(9).setH(1)
