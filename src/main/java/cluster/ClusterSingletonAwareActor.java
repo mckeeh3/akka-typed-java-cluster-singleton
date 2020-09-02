@@ -51,11 +51,10 @@ class ClusterSingletonAwareActor extends AbstractBehavior<ClusterSingletonAwareA
   }
 
   private Behavior<Message> onPong(Pong pong) {
-    final int totalPings = pong.singletonStatistics.values().stream().reduce(0, Integer::sum);
-    if (totalPings % 100 == 0) {
+    if (pong.totalPings % 100 == 0) {
       log().info("<--{}", pong);
     }
-    httpServerActor.tell(new HttpServer.SingletonAwareStatistics(totalPings, pong.singletonStatistics));
+    httpServerActor.tell(new HttpServer.SingletonAwareStatistics(pong.totalPings, pong.pingRatePs, pong.singletonStatistics));
     return Behaviors.same();
   }
 
@@ -83,12 +82,16 @@ class ClusterSingletonAwareActor extends AbstractBehavior<ClusterSingletonAwareA
   public static class Pong implements Message, Serializable {
     public final ActorRef<Message> replyFrom;
     public final long pingStart;
+    public final int totalPings;
+    public final int pingRatePs;
     public final Map<Integer, Integer> singletonStatistics;
 
     @JsonCreator
-    public Pong(ActorRef<Message> replyFrom, long pingStart, Map<Integer, Integer> singletonStatistics) {
+    public Pong(ActorRef<Message> replyFrom, long pingStart, int totalPings, int pingRatePs, Map<Integer, Integer> singletonStatistics) {
       this.replyFrom = replyFrom;
       this.pingStart = pingStart;
+      this.totalPings = totalPings;
+      this.pingRatePs = pingRatePs;
       this.singletonStatistics = singletonStatistics;
     }
 

@@ -15,6 +15,7 @@ import scala.Option;
 
 import java.io.Serializable;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -88,6 +89,7 @@ public class ClusterAwareActor extends AbstractBehavior<ClusterAwareActor.Messag
     pingUpColleagues();
     httpServerActor.tell(new HttpServer.ClusterAwareStatistics(
         pingStatistics.totalPings,
+        pingStatistics.pingRatePs,
         Collections.unmodifiableMap(pingStatistics.nodePings)));
     return Behaviors.same();
   }
@@ -193,6 +195,8 @@ public class ClusterAwareActor extends AbstractBehavior<ClusterAwareActor.Messag
 
   static class PingStatistics {
     int totalPings = 0;
+    int pingRatePs = 0;
+    final Instant startTime = Instant.now();
     final Map<Integer, Integer> nodePings = new HashMap<>();
 
     PingStatistics() {
@@ -201,6 +205,7 @@ public class ClusterAwareActor extends AbstractBehavior<ClusterAwareActor.Messag
 
     void ping(ActorRef<Message> actorRef) {
       ++totalPings;
+      pingRatePs = (int) (totalPings / Math.max(1, Duration.between(startTime, Instant.now()).toSeconds()));
 
       final int port = actorRefPort(actorRef);
       if (port >= 2551 && port <= 2559) {

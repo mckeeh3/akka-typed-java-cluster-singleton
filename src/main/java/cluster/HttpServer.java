@@ -150,10 +150,12 @@ class HttpServer {
 
   public static class ClusterAwareStatistics implements Statistics, Serializable {
     public final int totalPings;
+    public final int pingRatePs;
     public final Map<Integer, Integer> nodePings;
 
-    public ClusterAwareStatistics(int totalPings, Map<Integer, Integer> nodePings) {
+    public ClusterAwareStatistics(int totalPings, int pingRatePs, Map<Integer, Integer> nodePings) {
       this.totalPings = totalPings;
+      this.pingRatePs = pingRatePs;
       this.nodePings = nodePings;
     }
   }
@@ -164,10 +166,12 @@ class HttpServer {
 
   public static class SingletonAwareStatistics implements Statistics, Serializable {
     public final int totalPings;
+    public final int pingRatePs;
     public final Map<Integer, Integer> nodePings;
 
-    public SingletonAwareStatistics(int totalPings, Map<Integer, Integer> nodePings) {
+    public SingletonAwareStatistics(int totalPings, int pingRatePs, Map<Integer, Integer> nodePings) {
       this.totalPings = totalPings;
+      this.pingRatePs = pingRatePs;
       this.nodePings = nodePings;
     }
   }
