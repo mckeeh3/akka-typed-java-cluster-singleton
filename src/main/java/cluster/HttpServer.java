@@ -141,11 +141,11 @@ class HttpServer {
         }).collect(Collectors.toList());
   }
 
-  void load(ClusterAwareStatistics clusterAwareStatistics) {
-    this.clusterAwareStatistics = clusterAwareStatistics;
+  public interface Statistics {
   }
 
-  public interface Statistics {
+  void load(ClusterAwareStatistics clusterAwareStatistics) {
+    this.clusterAwareStatistics = clusterAwareStatistics;
   }
 
   public static class ClusterAwareStatistics implements Statistics, Serializable {
