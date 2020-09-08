@@ -4,6 +4,7 @@ import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
 import akka.cluster.Cluster;
+import akka.cluster.MemberStatus;
 import akka.cluster.typed.ClusterSingleton;
 import akka.cluster.typed.SingletonActor;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -46,7 +47,9 @@ class ClusterSingletonAwareActor extends AbstractBehavior<ClusterSingletonAwareA
   }
 
   private Behavior<Message> onTick() {
-    clusterSingletonProxy.tell(new Ping(getContext().getSelf(), port, System.nanoTime()));
+    if (iAmUp()) {
+      clusterSingletonProxy.tell(new Ping(getContext().getSelf(), port, System.nanoTime()));
+    }
     return Behaviors.same();
   }
 
@@ -56,6 +59,10 @@ class ClusterSingletonAwareActor extends AbstractBehavior<ClusterSingletonAwareA
     }
     httpServerActor.tell(new HttpServer.SingletonAwareStatistics(pong.totalPings, pong.pingRatePs, pong.singletonStatistics));
     return Behaviors.same();
+  }
+
+  private boolean iAmUp() {
+    return Cluster.get(getContext().getSystem()).selfMember().status().equals(MemberStatus.up());
   }
 
   interface Message extends Serializable {
