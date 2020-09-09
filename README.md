@@ -470,7 +470,18 @@ Also note that the
 indicated by the "L" moves from node 1 to 2. The leader "L" is red, which indicates that one or more nodes are in an unreachable state. While in this state the leader will not promote nodes to an "up" state. This is the reason why in the above example new nodes remain in a weakly up state.
 
 The [oldest node](https://doc.akka.io/docs/akka/current/typed/cluster-singleton.html#singleton-manager),
-indicated by the "O" in node 5, moved from node 1 to node 5. The visualization of the cluster state changes is shown in the dashboard as they happen.
+indicated by the "O" in node 9, moved from node 1 to node 5. The visualization of the cluster state changes is shown in the dashboard as they happen.
+#### Cluster Aware Dashboard Message Statistics
+
+When the singleton actor receives ping messages it updates a set of message statistics. The message statistics contains a list of message counters one for each message that is sent from the singleton aware actors running on each node in the cluster. These ping statistics are rendered on the right in the dashboard.
+
+![Dashboard 2](docs/images/akka-typed-java-cluster-singleton-dashboard-03.png)
+
+As shown in the image above, the ping message counters are listed by port. Ping messages are sent only from cluster nodes that are in the `up` state. Above the list is a total ping count, this is the total number of ping messages sent to the singleton actor. Above the total is the total ping message rate, this is the average number of ping messages sent per second to the singleton actor. 
+
+![Dashboard 2](docs/images/akka-typed-java-cluster-singleton-dashboard-04.png)
+
+As the state of the currently running cluster nodes changes this impacts the flow of messages to the singleton actor. These chages are shown on the dashboard. In the example image above, one node if in an unreachable state and two other nodes are in a weakly up state. Only nodes in an up state have singleton aware actors that are actively sending ping messages to the singleton actor. Note that nodes 2551 and 2556 are not currently listed in the statistics list. Also note that node 2557 has a dark red overlay in the statistics list. This overlay highlights that the message flow from the singleton aware actor on node 2557 has stopped.  
 
 ### How the Cluster Dashboard Works ###
 
@@ -484,9 +495,6 @@ for more details about its role in the cluster. That said, the leader node is no
 
 The left panel also shows Leader node port and the Oldest node port. The Leader node is responsible for making cluster state changes. The Oldest node is of interest when using
 [cluster singleton actors](https://doc.akka.io/docs/akka/current/typed/cluster-singleton.html#singleton-manager).
-Cluster singletons will be covered in more detail in the
-[akka-typed-java-cluster-singleton](https://github.com/mckeeh3/akka-typed-java-cluster-singleton)
-project in this series.
 
 The right-hand side of the dashboard shows the current state of the cluster from the perspective of each of the currently running cluster nodes. The dashboard asks each node for its current view of the cluster. The JavaScript in the dashboard sends an HTTP request to each of the nine nodes in the cluster. The currently running nodes each return a JSON response that contains that node's state and what it knows about the current state of the cluster.
 
