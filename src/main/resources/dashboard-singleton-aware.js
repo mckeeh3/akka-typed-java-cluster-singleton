@@ -52,6 +52,16 @@ const singletonAware = {
                   const length = w / 100 * (progress == 0 ? 1 : progress);
 
                   strokeWeight(0);
+
+                  if (node.state != "up") {
+                      if (node.state == "unreachable") {
+                        fill(color(255, 200, 200, 30));
+                      } else {
+                        fill(color(200, 200, 200, 30));
+                      }
+                      grid.rect(x - 0.1, lineY - 1, w + 0.2, 1);
+                  }
+
                   fill(color(29, 249, 246, 30));
                   grid.rect(x, lineY - 0.9, length, 0.7);
 
