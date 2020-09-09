@@ -61,7 +61,7 @@ const singletonAware = {
 
                   if (node.state != "up") {
                       if (node.state == "unreachable") {
-                        fill(color(255, 100, 100, 30));
+                        fill(color(255, 50, 50, 30));
                       } else {
                         fill(color(200, 200, 200, 30));
                       }
