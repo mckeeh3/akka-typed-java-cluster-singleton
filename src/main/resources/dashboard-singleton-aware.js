@@ -37,8 +37,9 @@ const singletonAware = {
           var lineY = y + 7;
           for (var p = 0; p < 9; p++) {
               const port = 2551 + p;
+              const node = clusterState.summary.nodes.find(n => n.port == port);
               const nodePings = singletonAwareStatistics.nodePings[port];
-              if (nodePings) {
+              if (node && nodePings) {
                   Label().setX(x).setY(lineY++).setW(w).setH(1)
                           .setBorder(0.25)
                           .setKey("" + port)
