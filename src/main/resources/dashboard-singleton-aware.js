@@ -53,20 +53,20 @@ const singletonAware = {
 
                   strokeWeight(0);
 
-                  if (node.state != "up") {
-                      if (node.state == "unreachable") {
-                        fill(color(255, 200, 200, 30));
-                      } else {
-                        fill(color(200, 200, 200, 30));
-                      }
-                      grid.rect(x - 0.1, lineY - 1, w + 0.2, 1);
-                  }
-
                   fill(color(29, 249, 246, 30));
                   grid.rect(x, lineY - 0.9, length, 0.7);
 
                   fill(color(249, 49, 46, 100));
                   grid.rect(x + length - 0.2, lineY - 0.9, 0.2, 0.7);
+
+                  if (node.state != "up") {
+                      if (node.state == "unreachable") {
+                        fill(color(255, 100, 100, 30));
+                      } else {
+                        fill(color(200, 200, 200, 30));
+                      }
+                      grid.rect(x - 0.1, lineY - 1, w + 0.2, 1);
+                  }
               }
           }
       }
