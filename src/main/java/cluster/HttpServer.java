@@ -149,6 +149,7 @@ class HttpServer {
   }
 
   public static class ClusterAwareStatistics implements Statistics, Serializable {
+    private static final long serialVersionUID = 1L;
     public final int totalPings;
     public final int pingRatePs;
     public final Map<Integer, Integer> nodePings;
@@ -165,6 +166,7 @@ class HttpServer {
   }
 
   public static class SingletonAwareStatistics implements Statistics, Serializable {
+    private static final long serialVersionUID = 1L;
     public final int totalPings;
     public final int pingRatePs;
     public final Map<Integer, Integer> nodePings;
@@ -177,6 +179,7 @@ class HttpServer {
   }
 
   public static class Nodes implements Serializable {
+    private static final long serialVersionUID = 1L;
     public final int selfPort;
     public final boolean leader;
     public final boolean oldest;
@@ -259,6 +262,7 @@ class HttpServer {
   }
 
   public static class Node implements Serializable {
+    private static final long serialVersionUID = 1L;
     public final int port;
     public final String state;
     public final String memberState;

@@ -68,7 +68,8 @@ class ClusterSingletonAwareActor extends AbstractBehavior<ClusterSingletonAwareA
   interface Message extends Serializable {
   }
 
-  public static class Ping implements Message, Serializable {
+  public static class Ping implements Message {
+    private static final long serialVersionUID = 1L;
     public final ActorRef<Message> replyTo;
     public final int port;
     public final long start;
@@ -86,7 +87,8 @@ class ClusterSingletonAwareActor extends AbstractBehavior<ClusterSingletonAwareA
     }
   }
 
-  public static class Pong implements Message, Serializable {
+  public static class Pong implements Message {
+    private static final long serialVersionUID = 1L;
     public final ActorRef<Message> replyFrom;
     public final long pingStart;
     public final int totalPings;

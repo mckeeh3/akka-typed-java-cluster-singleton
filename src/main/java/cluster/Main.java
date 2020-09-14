@@ -40,7 +40,12 @@ class Main {
   }
 
   private static Config setupClusterNodeConfig(String port) {
-    final String hostname = "127.0.0.1";
+    final Config config = ConfigFactory.load();
+    final boolean useLocalhost2 = config.getBoolean("useLocalhost2");
+
+    final String localhost1 = "127.0.0.1";
+    final String localhost2 = "127.0.0.2";
+    final String hostname = useLocalhost2 && port.compareTo("2555") > 0 ? localhost2 : localhost1;
     return ConfigFactory
         .parseString(String.format("akka.remote.artery.canonical.hostname = \"%s\"%n", hostname)
             + String.format("akka.remote.artery.canonical.port=%s%n", port)
