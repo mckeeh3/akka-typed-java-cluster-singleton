@@ -53,6 +53,6 @@ class Main {
             + String.format("akka.management.http.port=%s%n", port.replace("255", "855"))
             + String.format("akka.management.http.route-providers-read-only = %s%n", "false")
             + String.format("akka.remote.artery.advanced.tcp.outbound-client-hostname = %s%n", hostname))
-        .withFallback(ConfigFactory.load());
+        .withFallback(config);
   }
 }

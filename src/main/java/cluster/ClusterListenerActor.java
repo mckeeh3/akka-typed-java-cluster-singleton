@@ -205,4 +205,3 @@ class ClusterListenerActor extends AbstractBehavior<ClusterEvent.ClusterDomainEv
     }
   }
 }
-
