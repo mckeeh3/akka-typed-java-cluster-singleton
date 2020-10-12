@@ -20,6 +20,7 @@ The project series is composed of the following GitHub repos:
 [Akka Persistence](https://doc.akka.io/docs/akka/current/typed/index-persistence.html)
  and 
 [Akka Projections](https://doc.akka.io/docs/akka-projection/current/)
+
 Each project can be cloned, built, and runs independently of the other projects.
 
 
