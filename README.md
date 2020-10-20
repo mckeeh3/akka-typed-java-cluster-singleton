@@ -475,7 +475,8 @@ indicated by the "L" moves from node 1 to 2. The leader "L" is red, which indica
 
 The [oldest node](https://doc.akka.io/docs/akka/current/typed/cluster-singleton.html#singleton-manager),
 indicated by the "O" in node 9, moved from node 1 to node 5. The visualization of the cluster state changes is shown in the dashboard as they happen.
-#### Cluster Aware Dashboard Message Statistics
+
+#### Cluster Singleton Dashboard Message Statistics
 
 When the singleton actor receives ping messages it updates a set of message statistics. The message statistics contains a list of message counters one for each message that is sent from the singleton aware actors running on each node in the cluster. These ping statistics are rendered on the right in the dashboard.
 
