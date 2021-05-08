@@ -207,7 +207,7 @@ public class ClusterAwareActor extends AbstractBehavior<ClusterAwareActor.Messag
 
     void ping(ActorRef<Message> actorRef) {
       ++totalPings;
-      pingRatePs = (int) (totalPings / Math.max(1, Duration.between(startTime, Instant.now()).toSeconds()));
+      pingRatePs = (int) (totalPings / Math.max(1, Duration.between(startTime, Instant.now()).getSeconds()));
 
       final int port = actorRefPort(actorRef);
       if (port >= 2551 && port <= 2559) {

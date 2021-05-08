@@ -55,7 +55,7 @@ class ClusterSingletonActor extends AbstractBehavior<Message> {
 
     void ping(ClusterSingletonAwareActor.Ping ping) {
       ++totalPings;
-      pingRatePs = (int) (totalPings / Math.max(1, Duration.between(startTime, Instant.now()).toSeconds()));
+      pingRatePs = (int) (totalPings / Math.max(1, Duration.between(startTime, Instant.now()).getSeconds()));
 
       if (ping.port >= 2551 && ping.port <= 2559) {
         nodePings.put(ping.port, 1 + nodePings.getOrDefault(ping.port, 0));
