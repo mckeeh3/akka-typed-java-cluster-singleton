@@ -1,4 +1,4 @@
-## Akka Typed Java Cluster Singleton Example
+# Akka Typed Java Cluster Singleton Example
 
 This is an Akka Cluster project that includes an example use of
 [Cluster Singleton](https://doc.akka.io/docs/akka/current/typed/cluster-singleton.html#cluster-singleton),
@@ -9,28 +9,35 @@ and cluster dashboard.
 This project is one in a series of projects that starts with a simple Akka Cluster project and progressively builds up to examples of event sourcing and command query responsibility segregation - CQRS.
 
 The project series is composed of the following GitHub repos:
+
 * [akka-typed-java-cluster](https://github.com/mckeeh3/akka-typed-java-cluster)
-* [akka-typed-java-cluster-sbr](https://github.com/mckeeh3/akka-typed-java-cluster-sbr)
 * [akka-typed-java-cluster-aware](https://github.com/mckeeh3/akka-typed-java-cluster-aware)
 * [akka-typed-java-cluster-singleton](https://github.com/mckeeh3/akka-typed-java-cluster-singleton) (this project)
 * [akka-typed-java-cluster-sharding](https://github.com/mckeeh3/akka-typed-java-cluster-sharding)
-* [woe-sim](https://github.com/mckeeh3/woe-sim) an example of 
+* [simulator](https://github.com/mckeeh3/akka-cluster-kubernetes-simulator) and
+[visualizer](https://github.com/mckeeh3/akka-cluster-kubernetes-visualizer) Akka Cluster Sharding demo* [woe-sim](https://github.com/mckeeh3/woe-sim) an example of
 [Akka Persistence](https://doc.akka.io/docs/akka/current/typed/index-persistence.html)
-* [woe-twin](https://github.com/mckeeh3/woe-twin) an example of 
+* [woe-twin](https://github.com/mckeeh3/woe-twin) an example of
 [Akka Persistence](https://doc.akka.io/docs/akka/current/typed/index-persistence.html)
- and 
+ and
 [Akka Projections](https://doc.akka.io/docs/akka-projection/current/)
 
 Each project can be cloned, built, and runs independently of the other projects.
 
+- [Akka Typed Java Cluster Singleton Example](#akka-typed-java-cluster-singleton-example)
+  - [About Akka Clustering Singleton Actors](#about-akka-clustering-singleton-actors)
+  - [Installation](#installation)
+  - [Run a cluster (Mac, Linux, Cygwin)](#run-a-cluster-mac-linux-cygwin)
+  - [The Cluster Dashboard](#the-cluster-dashboard)
+    - [Cluster Singleton Dashboard Message Statistics](#cluster-singleton-dashboard-message-statistics)
+  - [How the Cluster Dashboard Works](#how-the-cluster-dashboard-works)
 
-### About Akka Clustering Singleton Actors
-
+## About Akka Clustering Singleton Actors
 
 You can read about how Cluster Singletons work in the [Akka documentation](https://doc.akka.io/docs/akka/current/typed/cluster-singleton.html#introduction). Here we will go into how a cluster singleton is used in this demo application.
 
 The cluster singleton actor in this demo receives messages from singleton aware actors at repeating intervals. The singleton actor computes a simple set of message statistics trigged as each message is received. As each node in the cluster starts, the bootstrap process creates one singleton aware actor instance. Each singleton aware actor periodically send ping messages to the singleton actor. The singleton actor responds with a pong message. The pong message contains the singleton's accumulated message statistics.
- 
+
 The cluster singleton is implemented in the `ClusterSingletonActor` class.
 
 ~~~java
@@ -54,7 +61,7 @@ import static cluster.ClusterSingletonAwareActor.Message;
 
 class ClusterSingletonActor extends AbstractBehavior<Message> {
   private final SingletonStatistics singletonStatistics = new SingletonStatistics();
-  
+
   static Behavior<Message> create() {
     return Behaviors.setup(ClusterSingletonActor::new);
   }
@@ -116,6 +123,7 @@ This actor receives `Ping` messages and replies with `Pong` messages.
         .build();
   }
 ~~~
+
 ~~~java
   private Behavior<Message> onPing(ClusterSingletonAwareActor.Ping ping) {
     singletonStatistics.ping(ping);
@@ -128,7 +136,7 @@ This actor receives `Ping` messages and replies with `Pong` messages.
   }
 ~~~
 
-The state of this actor is handled by the internally defined `SingletonStatistics` class. When each `Ping` message is received, this class's `ping` method is invoked.  
+The state of this actor is handled by the internally defined `SingletonStatistics` class. When each `Ping` message is received, this class's `ping` method is invoked.
 
 ~~~java
     void ping(ClusterSingletonAwareActor.Ping ping) {
@@ -285,14 +293,14 @@ On receiving each `tick` message the `onTick` method is invoked.
   }
 ~~~
 
-A `ping' message is sent to the singleton actor via a singleton proxy. The singleton proxy is initialized in the class constructor.
+A `ping` message is sent to the singleton actor via a singleton proxy. The singleton proxy is initialized in the class constructor.
 
 ~~~java
     clusterSingletonProxy = ClusterSingleton.get(actorContext.getSystem())
         .init(SingletonActor.of(ClusterSingletonActor.create(), ClusterSingletonActor.class.getSimpleName()));
 ~~~
 
-When the singleton actor responds with a `pong' message, the message is handled in the `onPong` method.
+When the singleton actor responds with a `pong` message, the message is handled in the `onPong` method.
 
 ~~~java
   private Behavior<Message> onPong(Pong pong) {
@@ -304,27 +312,29 @@ When the singleton actor responds with a `pong' message, the message is handled 
   }
 ~~~
 
-### Installation
+## Installation
 
 ~~~bash
-$ git clone https://github.com/mckeeh3/akka-typed-java-cluster-singleton.git
-$ cd akka-typed-java-cluster-singleton
-$ mvn clean package
+git clone https://github.com/mckeeh3/akka-typed-java-cluster-singleton.git
+cd akka-typed-java-cluster-singleton
+mvn clean package
 ~~~
 
 The Maven command builds the project and creates a self contained runnable JAR.
 
-### Run a cluster (Mac, Linux, Cygwin)
+## Run a cluster (Mac, Linux, Cygwin)
 
 The project contains a set of scripts that can be used to start and stop individual cluster nodes or start and stop a cluster of nodes.
 
 The main script `./akka` is provided to run a cluster of nodes or start and stop individual nodes.
 
 ~~~bash
-$ ./akka
+./akka
 ~~~
+
 Run the akka script with no parameters to see the available options.
-~~~
+
+~~~text
 This CLI is used to start, stop and view the dashboard nodes in an Akka cluster.
 
 These commands manage the Akka cluster as defined in this project. A cluster
@@ -362,8 +372,12 @@ The `cluster` and `node` start options will start Akka nodes on ports 2551 throu
 Both `stdin` and `stderr` output is sent to a log files in the `/tmp` directory using the file naming convention `/tmp/<project-dir-name>-N.log`.
 
 Start a cluster of nine nodes running on ports 2551 to 2559.
+
 ~~~bash
-$ ./akka cluster start
+./akka cluster start
+~~~
+
+~~~text
 Starting 9 cluster nodes
 Start node 1 on port 2551, management port 8551, HTTP port 9551
 Start node 2 on port 2552, management port 8552, HTTP port 9552
@@ -377,8 +391,12 @@ Start node 9 on port 2559, management port 8559, HTTP port 9559
 ~~~
 
 Stop all currently running cluster nodes.
+
 ~~~bash
-$ ./akka cluster stop
+./akka cluster stop
+~~~
+
+~~~text
 Stop node 1 on port 2551
 Stop node 2 on port 2552
 Stop node 3 on port 2553
@@ -391,29 +409,45 @@ Stop node 9 on port 2559
 ~~~
 
 Stop node 3 on port 2553.
+
 ~~~bash
-$ ./akka node stop 3
+./akka node stop 3
+~~~
+
+~~~text
 Stop node 3 on port 2553
 ~~~
 
 Stop nodes 5 and 7 on ports 2555 and 2557.
+
 ~~~bash
-$ ./akka node stop 5 7
+./akka node stop 5 7
+~~~
+
+~~~text
 Stop node 5 on port 2555
 Stop node 7 on port 2557
 ~~~
 
 Start node 3, 5, and 7 on ports 2553, 2555 and2557.
+
 ~~~bash
-$ ./akka node start 3 5 7
+./akka node start 3 5 7
+~~~
+
+~~~text
 Start node 3 on port 2553, management port 8553, HTTP port 9553
 Start node 5 on port 2555, management port 8555, HTTP port 9555
 Start node 7 on port 2557, management port 8557, HTTP port 9557
 ~~~
 
 Start a cluster of four nodes on ports 2551, 2552, 2553, and 2554.
+
 ~~~bash
-$ ./akka cluster start 4
+./akka cluster start 4
+~~~
+
+~~~text
 Starting 4 cluster nodes
 Start node 1 on port 2551, management port 8551, HTTP port 9551
 Start node 2 on port 2552, management port 8552, HTTP port 9552
@@ -422,8 +456,9 @@ Start node 4 on port 2554, management port 8554, HTTP port 9554
 ~~~
 
 Again, stop all currently running cluster nodes.
+
 ~~~bash
-$ ./akka cluster stop
+./akka cluster stop
 ~~~
 
 The `./akka cluster status` command displays the status of a currently running cluster in JSON format using the
@@ -431,17 +466,18 @@ The `./akka cluster status` command displays the status of a currently running c
 extension
 [Cluster Http Management](https://developer.lightbend.com/docs/akka-management/current/cluster-http-management.html).
 
-### The Cluster Dashboard ###
+## The Cluster Dashboard
 
 Included in this project is a cluster dashboard. The dashboard visualizes live information about a running cluster.  
 
 ~~~bash
-$ git clone https://github.com/mckeeh3/akka-typed-java-cluster-singleton.git
-$ cd akka-typed-java-cluster-singleton
-$ mvn clean package
-$ ./akka cluster start
-$ ./akka cluster dashboard
+git clone https://github.com/mckeeh3/akka-typed-java-cluster-singleton.git
+cd akka-typed-java-cluster-singleton
+mvn clean package
+./akka cluster start
+./akka cluster dashboard
 ~~~
+
 Follow the steps above to download, build, run, and bring up a dashboard in your default web browser.
 
 ![Dashboard 1](docs/images/akka-typed-java-cluster-singleton-dashboard-01.png)
@@ -449,14 +485,27 @@ Follow the steps above to download, build, run, and bring up a dashboard in your
 The following sequence of commands changes the cluster state as shown below.
 
 ~~~bash
-$ ./akka node stop 1 6    
+./akka node stop 1 6
+~~~
+
+~~~text
 Stop node 1 on port 2551
 Stop node 6 on port 2556
+~~~
 
-$ ./akka node kill 7  
+~~~bash
+./akka node kill 7
+~~~
+
+~~~text
 Kill node 7 on port 2557
+~~~
 
-$ ./akka node start 1 6  
+~~~bash
+./akka node start 1 6
+~~~
+
+~~~text
 Start node 1 on port 2551, management port 8551, HTTP port 9551
 Start node 6 on port 2556, management port 8556, HTTP port 9556
 ~~~
@@ -476,19 +525,19 @@ indicated by the "L" moves from node 1 to 2. The leader "L" is red, which indica
 The [oldest node](https://doc.akka.io/docs/akka/current/typed/cluster-singleton.html#singleton-manager),
 indicated by the "O" in node 9, moved from node 1 to node 5. The visualization of the cluster state changes is shown in the dashboard as they happen.
 
-#### Cluster Singleton Dashboard Message Statistics
+### Cluster Singleton Dashboard Message Statistics
 
 When the singleton actor receives ping messages it updates a set of message statistics. The message statistics contains a list of message counters one for each message that is sent from the singleton aware actors running on each node in the cluster. These ping statistics are rendered on the right in the dashboard.
 
 ![Dashboard 2](docs/images/akka-typed-java-cluster-singleton-dashboard-03.png)
 
-As shown in the image above, the ping message counters are listed by port. Ping messages are sent only from cluster nodes that are in the `up` state. Above the list is a total ping count, this is the total number of ping messages sent to the singleton actor. Above the total is the total ping message rate, this is the average number of ping messages sent per second to the singleton actor. 
+As shown in the image above, the ping message counters are listed by port. Ping messages are sent only from cluster nodes that are in the `up` state. Above the list is a total ping count, this is the total number of ping messages sent to the singleton actor. Above the total is the total ping message rate, this is the average number of ping messages sent per second to the singleton actor.
 
 ![Dashboard 2](docs/images/akka-typed-java-cluster-singleton-dashboard-04.png)
 
-As the state of the currently running cluster nodes changes this impacts the flow of messages to the singleton actor. These chages are shown on the dashboard. In the example image above, one node if in an unreachable state and two other nodes are in a weakly up state. Only nodes in an up state have singleton aware actors that are actively sending ping messages to the singleton actor. Note that nodes 2551 and 2556 are not currently listed in the statistics list. Also note that node 2557 has a dark red overlay in the statistics list. This overlay highlights that the message flow from the singleton aware actor on node 2557 has stopped.  
+As the state of the currently running cluster nodes changes this impacts the flow of messages to the singleton actor. These chages are shown on the dashboard. In the example image above, one node if in an unreachable state and two other nodes are in a weakly up state. Only nodes in an up state have singleton aware actors that are actively sending ping messages to the singleton actor. Note that nodes 2551 and 2556 are not currently listed in the statistics list. Also note that node 2557 has a dark red overlay in the statistics list. This overlay highlights that the message flow from the singleton aware actor on node 2557 has stopped.
 
-### How the Cluster Dashboard Works ###
+## How the Cluster Dashboard Works
 
 When the dashboard web page loads, it kicks off included JavaScript code used to render the dashboard web page. The
 [p5.js JavaScript library](https://p5js.org/)
