@@ -1,16 +1,16 @@
 package cluster;
 
-import akka.actor.typed.ActorRef;
+import java.util.Arrays;
+
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.Terminated;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.management.javadsl.AkkaManagement;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-
-import java.util.Arrays;
 
 class Main {
   static Behavior<Void> create() {
